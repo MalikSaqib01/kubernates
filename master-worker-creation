@@ -1,0 +1,101 @@
+sudo su
+apt-get update
+apt-get install apt-transport-https
+
+apt install docker.io -y
+docker --version
+systemctl start docker
+systemctl enable docker
+
+sudo curl -s https://packages.cloud.google.com/apt-key.gpg | sudo apt-key add (or) sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null
+
+
+nano /etc/apt/sources.list.d/kubernetes.list
+
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+
+apt-get update
+
+sudo apt-get install -y kubelet kubeadm kubectl
+
+
+apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+
+
+BOOTSTRAPPING THE MASTER NODE (IN MASTER)
+
+kubeadm init
+ 
+
+COPY THE COMMAND TO RUN IN NODES & SAVE IN NOTEPAD 
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+THESE THREE COMMANDS ARE COPIED IN kubeadm init RESULTS
+
+COPY LONG CODE PROVIDED MY MASTER IN NODE NOW LIKE CODE GIVEN BELOW
+
+e.g- kubeadm join 172.31.33.169:6443 --token e91s0m.xonzimcg2cfwbtip --discovery-token-ca-cert-hash sha256:9b86ee11f551fff04c8ea1799382b2552e174e433e8f57775b33564324ceeec6 
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/Flannel/master/Documentation/k8s manifests/kube-flannel-rbac.yml
+
+CONFIGURE WORKER NODES (IN NODES)
+
+
+
+GO TO MASTER AND RUN THIS COMMAND
+
+kubeadm join 172.31.33.169:6443 --token e91s0m.xonzimcg2cfwbtip --discovery-token-ca-cert-hash sha256:9b86ee11f551fff04c8ea1799382b2552e174e433e8f57775b33564324ceeec6 
+
+kubectl get nodes
+
+**********************END************************************
+
+
+CHAT GPT:
+
+add all packages from:
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+and commands:
+
+#!/bin/bash
+# Kubernetes Setup Script
+
+# Prerequisites
+sudo swapoff -a  # Disable swap (not recommended for Kubernetes)
+sudo apt update && sudo apt upgrade -y  # Update package lists
+
+# Install Docker
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Install kubeadm, kubelet, and kubectl
+sudo apt install -y kubelet kubeadm kubectl
+
+# Initialize Kubernetes Master Node
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# Set Up kubeconfig for kubectl
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Deploy a Pod Network (Flannel in this example)
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+# Display join command for worker nodes
+echo "Copy and run the following command on worker nodes:"
+sudo kubeadm join <MASTER_NODE_IP>:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH>"
+
+.....................................
+
+
+kubeadm join 172.31.42.143:6443 --token xw2j7b.f5vca7wnnohivw1o --discovery-token-ca-cert-hash sha256:125e8e265a29a60392894242379c7d8b4e72174a723207b53257f03fa3fb80ae 
