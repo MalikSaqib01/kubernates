@@ -1,0 +1,9 @@
+#MINIKUBE COMMANDS
+
+minikube start --nodes 2 -p multinode --driver=docker
+
+minikube profile multinode
+
+minikube status -p multinode
+
+kubectl get nodes
